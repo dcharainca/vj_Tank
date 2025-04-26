@@ -1,4 +1,4 @@
-//Referencia al lienzo y su contexto de dibujo 2d
+
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
@@ -6,28 +6,33 @@ let keys={};
 document.addEventListener("keydown",(e)=> keys[e.key]=true);
 document.addEventListener("keyup",(e)=> keys[e.key]=false);
 
-//Definiiendo el jugador
-const player = {x:50, y:50, w:30, h:30, color:'red', speed: 3};
+const player = {x:50, y:50, w:30, h:30, color:'blue', speed: 3};
+const playerImage = new Image();
+playerImage.src = "/img/tank.png";
 
-//Defnicion de los niveles con obstaculos y monedas
+const coinImage = new Image();
+coinImage.src = "/img/coin.jpg";
+
+
+
 const levels=[
-		//Primer nivel
+
 	{
 		obstacles:[
-			{x:100, y:150, w:400, h:20},
-			{x:300, y:250, w:20, h:100}
+			{x:150, y:110, w:20, h:70},
+			{x:300, y:150, w:15, h:150}
 		],
 		coins:[
 			{x:500, y:50, collected: false},
 			{x:50, y:300, collected: false}
 		]
 	},
-	//Segundo nivel
+
 	{
 		obstacles:[
-			{x:200, y:100, w:200, h:20},
-			{x:200, y:200, w:20, h:100},
-			{x:400, y:200, w:20, h:100}
+			{x:150, y:100, w:200, h:20},
+			{x:100, y:200, w:20, h:100},
+			{x:300, y:200, w:20, h:100}
 		],
 		coins:[
 			{x:500, y:50, collected: false},
@@ -37,9 +42,9 @@ const levels=[
 	},
 	{
         obstacles: [
-            {x: 100, y: 100, w: 100, h: 20},
-            {x: 150, y: 200, w: 20, h: 100},
-            {x: 400, y: 350, w: 150, h: 20}
+            {x: 150, y: 80, w: 100, h: 20},
+            {x: 110, y: 140, w: 20, h: 100},
+            {x: 350, y: 300, w: 150, h: 20}
         ],
         coins: [
             {x: 50, y: 50, collected: false},
@@ -52,14 +57,16 @@ const levels=[
 ];
 
 
-
-//Funcion para que aparezca el jugador u obstaculo
-function drawRect(obj) {
-	ctx.fillStyle = obj.color || 'white';
-	ctx.fillRect(obj.x, obj.y, obj.w, obj.h);
+function drawRect(obj) {	
+		ctx.fillStyle = obj.color || 'white';
+		ctx.fillRect(obj.x, obj.y, obj.w, obj.h);	
 }
 
-//Indice del nivel actual
+
+function drawImage(obj, image) {
+	ctx.drawImage(image, obj.x, obj.y, obj.w, obj.h); 
+}
+
 let currentLevel = 0
 
 const sonidoColision = new Audio('sonido/colision.mp3');
@@ -143,7 +150,7 @@ function resetLevel(){
 
 function draw()
 {
-	//Limpiar el lienzo
+
 	ctx.clearRect(0,0, canvas.width, canvas.height);
 
 	if (mostrarPantallaInicio) {        
@@ -157,25 +164,22 @@ function draw()
     }
 
 
-	//Dibuja el jugador
-	drawRect(player);
+	
+	drawImage(player,playerImage);	
 
 	const level = levels[currentLevel];
 
 	//Dibuja los obstaculos
 	for (let obs of level.obstacles){
 		drawRect({...obs, color:'skyblue'});
-	}
-	//Dibuja las monedas no recogidas
+	}		
+
 	for (let coin of level.coins){
 		if(!coin.collected){
-			ctx.fillStyle='gold';
-			ctx.beginPath();
-			ctx.arc(coin.x + 7.5, coin.y + 7.5, 7.5, 0 , Math.PI*2);
-			ctx.fill();
+			drawImage({...coin, w: 15, h: 15}, coinImage);
 		}
 	}
-	//Muestra el numero del nivel actual
+
 	ctx.fillStyle = 'white';
 	ctx.fillText(`Nivel: ${currentLevel + 1}`,50,20);
 }
@@ -186,6 +190,6 @@ function gameLoop(){
 	requestAnimationFrame(gameLoop);
 }
 
-//Inicializa el juego
+
 resetLevel();
 gameLoop();
